@@ -1,0 +1,563 @@
+Nihongo Flashcard App — Frontend Architecture & Implementation Plan
+================================================================================
+
+1. TECH STACK
+================================================================================
+
+CORE FRAMEWORK:
+- React 18+ (with Hooks)
+- TypeScript (for type safety)
+- Vite (build tool, faster than CRA)
+
+ROUTING & STATE:
+- React Router v6 (client-side routing)
+- Zustand / Redux Toolkit (global state management)
+- React Query (TanStack Query) - server state, caching, API calls
+- Jotai / Recoil (atomic state - optional for complex states)
+
+STYLING:
+- Tailwind CSS 3+ (utility-first CSS)
+- Headless UI / Radix UI (accessible component primitives)
+- Framer Motion (animations)
+- clsx / classnames (conditional classes)
+
+UI COMPONENTS:
+- Custom components built on Radix UI
+- shadcn/ui (copy-paste component library)
+- Lucide React (icon library - Japanese-friendly)
+- react-icons (supplementary icons)
+
+FORMS & VALIDATION:
+- React Hook Form (performant form handling)
+- Zod (schema validation)
+- @hookform/resolvers (connect Zod with React Hook Form)
+
+API & DATA FETCHING:
+- Axios (HTTP client)
+- React Query (data fetching, caching, synchronization)
+- Socket.io-client (real-time features - optional for future chat/notifications)
+
+AUTHENTICATION:
+- JWT tokens (stored in httpOnly cookies + localStorage fallback)
+- axios interceptors (auto-attach token, refresh token logic)
+- Protected Route wrapper component
+
+FILE HANDLING:
+- react-dropzone (drag & drop PDF upload)
+- pdf.js / react-pdf (PDF preview)
+- file-saver (download flashcards as JSON/CSV)
+
+RICH TEXT EDITOR (for Blog):
+- TipTap / Lexical (modern WYSIWYG editor)
+- DOMPurify (sanitize HTML content)
+
+FLASHCARD FEATURES:
+- react-card-flip (flip animation)
+- react-swipeable-views (swipe gestures for mobile)
+- use-sound (audio feedback for correct/wrong answers)
+
+CHARTS & ANALYTICS:
+- Recharts / Chart.js (study progress visualization)
+- react-chartjs-2 (wrapper for Chart.js)
+
+UTILITIES:
+- date-fns (date manipulation - lighter than moment.js)
+- lodash-es (utility functions, tree-shakeable)
+- react-hot-toast / sonner (toast notifications)
+- react-helmet-async (SEO meta tags)
+
+TESTING:
+- Vitest (unit testing, Vite-compatible)
+- React Testing Library (component testing)
+- Playwright / Cypress (E2E testing)
+
+CODE QUALITY:
+- ESLint + Prettier (code formatting)
+- Husky + lint-staged (pre-commit hooks)
+- TypeScript strict mode
+
+DEPLOYMENT:
+- Vercel / Netlify (static hosting)
+- Docker (containerization - optional)
+- GitHub Actions (CI/CD)
+
+
+2. PROJECT STRUCTURE
+================================================================================
+
+nihongo-flashcard-app/
+├── public/
+│   ├── fonts/                    # Japanese fonts (Noto Sans JP)
+│   ├── images/
+│   │   ├── logo.svg
+│   │   ├── japanese-pattern.svg  # Traditional patterns
+│   │   └── illustrations/        # Login/Register illustrations
+│   └── sounds/                   # SFX for quiz
+│       ├── correct.mp3
+│       └── wrong.mp3
+│
+├── src/
+│   ├── api/                      # API layer
+│   │   ├── client.ts             # Axios instance with interceptors
+│   │   ├── endpoints.ts          # API endpoint constants
+│   │   └── services/
+│   │       ├── authService.ts
+│   │       ├── cardService.ts
+│   │       ├── deckService.ts
+│   │       ├── translationService.ts
+│   │       ├── paymentService.ts
+│   │       ├── quizService.ts
+│   │       └── blogService.ts
+│   │
+│   ├── assets/                   # Static assets
+│   │   ├── icons/
+│   │   └── patterns/
+│   │
+│   ├── components/               # Reusable components
+│   │   ├── ui/                   # shadcn/ui components
+│   │   │   ├── Button.tsx
+│   │   │   ├── Input.tsx
+│   │   │   ├── Card.tsx
+│   │   │   ├── Dialog.tsx
+│   │   │   ├── Select.tsx
+│   │   │   ├── Toast.tsx
+│   │   │   └── ...
+│   │   │
+│   │   ├── layout/
+│   │   │   ├── Header.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   └── MainLayout.tsx
+│   │   │
+│   │   ├── auth/
+│   │   │   ├── LoginForm.tsx
+│   │   │   ├── RegisterForm.tsx
+│   │   │   ├── GoogleOAuthButton.tsx
+│   │   │   └── ProtectedRoute.tsx
+│   │   │
+│   │   ├── flashcard/
+│   │   │   ├── FlashcardItem.tsx      # Single card component
+│   │   │   ├── FlashcardDeck.tsx      # Deck container
+│   │   │   ├── StudyMode.tsx          # Study interface
+│   │   │   └── ProgressBar.tsx
+│   │   │
+│   │   ├── dictionary/
+│   │   │   ├── DictionarySearch.tsx   # AI translation input
+│   │   │   ├── TranslationResult.tsx  # Popup with kanji, kana, meaning
+│   │   │   └── SaveToFlashcardButton.tsx
+│   │   │
+│   │   ├── upload/
+│   │   │   ├── PDFUploader.tsx        # Drag & drop zone
+│   │   │   ├── PDFPreview.tsx
+│   │   │   └── GeneratedCardsPreview.tsx
+│   │   │
+│   │   ├── quiz/
+│   │   │   ├── QuizCard.tsx
+│   │   │   ├── QuizOptions.tsx
+│   │   │   ├── QuizTimer.tsx
+│   │   │   └── QuizResults.tsx
+│   │   │
+│   │   ├── blog/
+│   │   │   ├── PostCard.tsx
+│   │   │   ├── PostEditor.tsx         # TipTap editor
+│   │   │   ├── CategoryFilter.tsx
+│   │   │   └── ReactionButton.tsx
+│   │   │
+│   │   ├── payment/
+│   │   │   ├── PricingCard.tsx        # Subscription plans
+│   │   │   ├── QRCodeDisplay.tsx      # PayOS QR code
+│   │   │   └── ProBadge.tsx
+│   │   │
+│   │   └── common/
+│   │       ├── Loading.tsx
+│   │       ├── ErrorBoundary.tsx
+│   │       ├── EmptyState.tsx
+│   │       └── Breadcrumb.tsx
+│   │
+│   ├── hooks/                    # Custom React hooks
+│   │   ├── useAuth.ts            # Authentication logic
+│   │   ├── useDebounce.ts
+│   │   ├── useLocalStorage.ts
+│   │   ├── useMediaQuery.ts
+│   │   ├── useRateLimitCheck.ts  # Check PRO status & usage
+│   │   ├── useTranslation.ts     # AI dictionary hook
+│   │   └── useFlashcardStudy.ts  # Study session logic
+│   │
+│   ├── pages/                    # Page components (routes)
+│   │   ├── auth/
+│   │   │   ├── LoginPage.tsx
+│   │   │   ├── RegisterPage.tsx
+│   │   │   ├── ForgotPasswordPage.tsx
+│   │   │   └── ResetPasswordPage.tsx
+│   │   │
+│   │   ├── dashboard/
+│   │   │   └── DashboardPage.tsx      # User home, stats
+│   │   │
+│   │   ├── decks/
+│   │   │   ├── DecksListPage.tsx
+│   │   │   ├── DeckDetailPage.tsx
+│   │   │   └── CreateDeckPage.tsx
+│   │   │
+│   │   ├── study/
+│   │   │   └── StudySessionPage.tsx   # Flashcard study mode
+│   │   │
+│   │   ├── quiz/
+│   │   │   ├── QuizSetupPage.tsx
+│   │   │   ├── QuizPlayPage.tsx
+│   │   │   └── QuizHistoryPage.tsx
+│   │   │
+│   │   ├── dictionary/
+│   │   │   └── DictionaryPage.tsx     # AI translation standalone page
+│   │   │
+│   │   ├── upload/
+│   │   │   └── UploadPDFPage.tsx      # Upload & generate cards
+│   │   │
+│   │   ├── blog/
+│   │   │   ├── BlogListPage.tsx
+│   │   │   ├── BlogDetailPage.tsx
+│   │   │   ├── CreatePostPage.tsx
+│   │   │   └── EditPostPage.tsx
+│   │   │
+│   │   ├── settings/
+│   │   │   ├── ProfilePage.tsx
+│   │   │   ├── SubscriptionPage.tsx   # Manage PRO subscription
+│   │   │   └── PreferencesPage.tsx
+│   │   │
+│   │   └── landing/
+│   │       ├── HomePage.tsx           # Marketing landing page
+│   │       └── PricingPage.tsx
+│   │
+│   ├── store/                    # Global state (Zustand/Redux)
+│   │   ├── authStore.ts          # User, token, isPro status
+│   │   ├── deckStore.ts
+│   │   ├── studyStore.ts         # Current study session
+│   │   └── uiStore.ts            # Theme, sidebar, modals
+│   │
+│   ├── types/                    # TypeScript types
+│   │   ├── api.types.ts
+│   │   ├── auth.types.ts
+│   │   ├── card.types.ts
+│   │   ├── deck.types.ts
+│   │   ├── quiz.types.ts
+│   │   ├── blog.types.ts
+│   │   └── payment.types.ts
+│   │
+│   ├── utils/                    # Utility functions
+│   │   ├── constants.ts          # App constants
+│   │   ├── validators.ts         # Zod schemas
+│   │   ├── formatters.ts         # Date, number formatting
+│   │   ├── storage.ts            # localStorage helpers
+│   │   └── japanese.ts           # Romaji conversion, JLPT utils
+│   │
+│   ├── styles/
+│   │   ├── globals.css           # Tailwind imports, global styles
+│   │   └── fonts.css             # Japanese font imports
+│   │
+│   ├── App.tsx                   # Root component
+│   ├── main.tsx                  # Entry point
+│   └── vite-env.d.ts
+│
+├── .env.example                  # Environment variables template
+├── .env.local                    # Local dev environment
+├── .eslintrc.cjs
+├── .prettierrc
+├── tailwind.config.js
+├── tsconfig.json
+├── vite.config.ts
+└── package.json
+
+
+3. ROUTING STRUCTURE (React Router v6)
+================================================================================
+
+PUBLIC ROUTES (No Auth Required):
+/                          → HomePage (Landing)
+/login                     → LoginPage
+/register                  → RegisterPage
+/forgot-password           → ForgotPasswordPage
+/reset-password/:token     → ResetPasswordPage
+/pricing                   → PricingPage
+/blog                      → BlogListPage
+/blog/:slug                → BlogDetailPage
+
+PROTECTED ROUTES (Auth Required):
+/dashboard                 → DashboardPage
+/decks                     → DecksListPage
+/decks/:deckId             → DeckDetailPage
+/decks/create              → CreateDeckPage
+/study/:deckId             → StudySessionPage
+/quiz/setup                → QuizSetupPage
+/quiz/play/:sessionId      → QuizPlayPage
+/quiz/history              → QuizHistoryPage
+/dictionary                → DictionaryPage (AI translation)
+/upload                    → UploadPDFPage
+/settings/profile          → ProfilePage
+/settings/subscription     → SubscriptionPage
+/blog/create               → CreatePostPage (USER role)
+/blog/edit/:postId         → EditPostPage
+
+ADMIN ROUTES (Role: ADMIN):
+/admin/users               → User management
+/admin/decks               → Manage built-in decks
+/admin/categories          → Blog categories
+
+
+4. KEY FEATURES IMPLEMENTATION
+================================================================================
+
+A. AUTHENTICATION FLOW
+-----------------------
+1. Login/Register:
+   - Form validation with Zod
+   - POST to /api/auth/login or /api/auth/register
+   - Store JWT token in localStorage + httpOnly cookie
+   - Save user info to Zustand authStore
+   - Redirect to /dashboard
+
+2. Google OAuth:
+   - Use react-oauth/google package
+   - Backend returns JWT after Google verification
+   - Same flow as email/password login
+
+3. Protected Routes:
+   - ProtectedRoute wrapper checks authStore.isAuthenticated
+   - Redirect to /login if not authenticated
+   - Axios interceptor auto-attaches Authorization header
+
+4. Token Refresh:
+   - Axios response interceptor catches 401
+   - Call /api/auth/refresh-token
+   - Retry failed request with new token
+
+
+B. FREEMIUM RATE LIMITING (Frontend)
+-------------------------------------
+1. Before calling /api/translate or /api/upload:
+   - Check authStore.user.isPro and user.proExpiresAt
+   - If isPro && proExpiresAt > now → Allow action
+   - If not PRO → Show usage badge (e.g., "3/10 translations today")
+
+2. On 403 RateLimitExceeded from backend:
+   - Show modal: "Daily limit reached! Upgrade to PRO for unlimited access"
+   - Display pricing cards with PayOS payment link
+
+3. Usage Badge Component:
+   - Fetch /api/users/daily-usage on mount
+   - Display: "AI Translations: 7/10 | PDF Uploads: 1/2"
+   - Real-time update after each action
+
+
+C. AI DICTIONARY (Claude Haiku)
+--------------------------------
+1. DictionarySearch Component:
+   - Input field with Japanese/Vietnamese detection
+   - Button: "Tra từ / Translate"
+   - Loading state with spinner
+
+2. POST /api/translate:
+   - Body: { text: "食べる", direction: "JP_TO_VN" }
+   - Response: { kanji, kana, romaji, meaning_vi, example_jp, example_vi, part_of_speech }
+
+3. TranslationResult Popup:
+   - Display all fields in a modal/card
+   - "Lưu vào Flashcard / Save to Flashcard" button
+   - Select deck dropdown → POST /api/cards/save-from-translation
+
+4. Rate Limit Handling:
+   - If 403 → Show "Upgrade to PRO" modal
+
+
+D. PDF UPLOAD & FLASHCARD GENERATION
+-------------------------------------
+1. PDFUploader Component:
+   - react-dropzone for drag & drop
+   - File validation: max 10MB, .pdf only
+   - Preview with react-pdf
+
+2. POST /api/upload/generate-cards:
+   - FormData with file + deck_id
+   - Backend uses Gemini to extract vocab → create cards
+   - Loading state: "AI đang phân tích tài liệu... / AI is analyzing..."
+
+3. GeneratedCardsPreview:
+   - Display extracted cards in a table
+   - Allow edit/delete before final save
+   - Bulk save to selected deck
+
+
+E. FLASHCARD STUDY MODE
+------------------------
+1. StudySessionPage:
+   - Fetch cards from /api/decks/:deckId/cards
+   - FlashcardItem with react-card-flip animation
+   - Swipe gestures (react-swipeable-views) for mobile
+   - Keyboard shortcuts: Space (flip), Arrow keys (next/prev)
+
+2. Progress Tracking:
+   - After each card: User marks "知ってる / I know" or "復習 / Review"
+   - POST /api/cards/:cardId/progress
+   - Update user_card_progress table
+
+3. Study Session State (Zustand):
+   - currentCardIndex, totalCards, reviewedCards[]
+   - Session timer
+   - Correct/Wrong counts
+
+4. Completion:
+   - Show stats modal
+   - "Continue studying" or "Finish session"
+
+
+F. QUIZ SYSTEM
+--------------
+1. QuizSetupPage:
+   - Select deck
+   - Choose quiz type: Multiple choice, Type answer, Flashcard review
+   - Number of questions
+
+2. QuizPlayPage:
+   - Fetch /api/quiz/start { deckId, questionCount, type }
+   - Backend returns quiz_session_id + questions
+   - Timer component (countdown)
+   - Submit answers: POST /api/quiz/submit
+
+3. QuizResults:
+   - Display score, correct/wrong breakdown
+   - Review wrong answers
+   - Retry quiz or return to dashboard
+
+
+G. PAYMENT FLOW (PAYOS)
+------------------------
+1. SubscriptionPage:
+   - Display pricing cards: 1 Month, 6 Months, 1 Year
+   - "Nâng cấp / Upgrade" button
+
+2. Click Upgrade:
+   - POST /api/payments/create-link { planType: "1_MONTH" }
+   - Response: { checkoutUrl: "https://pay.payos.vn/..." }
+   - Open QR code modal or redirect to PayOS page
+
+3. Payment Success:
+   - PayOS redirects to /payment/success?orderCode=XXX
+   - Frontend polls /api/payments/status/:orderCode
+   - Once status = 'PAID', update authStore.user.isPro
+   - Show success toast + confetti animation
+
+
+H. BLOG SYSTEM
+--------------
+1. BlogListPage:
+   - Fetch /api/posts with pagination
+   - Category filter sidebar
+   - Search bar
+
+2. BlogDetailPage:
+   - Fetch /api/posts/:slug
+   - Display content with DOMPurify sanitization
+   - Reaction buttons (like, love, insightful)
+   - POST /api/posts/:postId/react
+
+3. CreatePostPage (TipTap Editor):
+   - Rich text editor with toolbar
+   - Image upload to Cloudinary/S3
+   - Meta tags input (SEO)
+   - Preview mode
+   - POST /api/posts/create
+
+
+5. RESPONSIVE DESIGN (Mobile-First)
+================================================================================
+
+BREAKPOINTS (Tailwind):
+- sm: 640px   → Mobile landscape
+- md: 768px   → Tablet
+- lg: 1024px  → Desktop
+- xl: 1280px  → Large desktop
+
+MOBILE OPTIMIZATIONS:
+- Bottom navigation bar for main actions
+- Swipe gestures for flashcards
+- Touch-friendly button sizes (min 44x44px)
+- Collapsible sidebar → Hamburger menu
+- Simplified forms with larger inputs
+
+JAPANESE DESIGN ELEMENTS:
+- Subtle seigaiha (wave) patterns in backgrounds
+- Torii gate or Mount Fuji illustrations
+- Indigo/red accent colors (和色 - wa-shoku palette)
+- Noto Sans JP font for Japanese text
+- Clean white space (余白 - yohaku concept)
+
+
+6. PERFORMANCE OPTIMIZATIONS
+================================================================================
+
+CODE SPLITTING:
+- React.lazy() for route-based code splitting
+- Separate bundles for heavy libraries (TipTap, PDF.js)
+
+CACHING:
+- React Query staleTime and cacheTime configs
+- Service Worker for offline flashcard access (future PWA)
+
+IMAGE OPTIMIZATION:
+- WebP format with fallbacks
+- Lazy loading with Intersection Observer
+- Placeholder blur-up effect
+
+BUNDLE SIZE:
+- Tree-shaking with Vite
+- Lodash-es (import specific functions)
+- Analyze bundle with rollup-plugin-visualizer
+
+
+7. ENVIRONMENT VARIABLES (.env.local)
+================================================================================
+
+VITE_API_BASE_URL=http://localhost:8080/api
+VITE_GOOGLE_OAUTH_CLIENT_ID=your_google_client_id
+VITE_PAYOS_CLIENT_ID=your_payos_client_id
+VITE_ENABLE_ANALYTICS=false
+
+
+8. DEPLOYMENT CHECKLIST
+================================================================================
+
+PRE-DEPLOYMENT:
+□ Run ESLint + Prettier
+□ TypeScript type check (tsc --noEmit)
+□ Run tests (Vitest + Playwright)
+□ Lighthouse audit (Performance, Accessibility, SEO)
+□ Update environment variables for production
+
+BUILD:
+□ npm run build
+□ Test production build locally (npm run preview)
+□ Check bundle size (< 500KB gzipped initial load)
+
+DEPLOY TO VERCEL:
+□ Connect GitHub repository
+□ Set environment variables in Vercel dashboard
+□ Configure build command: npm run build
+□ Output directory: dist
+□ Deploy
+
+
+9. FUTURE ENHANCEMENTS (v2.0)
+================================================================================
+
+- PWA support (offline flashcard studying)
+- Speech recognition for pronunciation practice
+- Spaced Repetition System (SRS) algorithm
+- Social features (friend challenges, leaderboards)
+- Mobile app (React Native / Expo)
+- Dark mode toggle
+- Multi-language support (English UI)
+- Voice flashcards (text-to-speech)
+- AR kanji recognition (camera scan)
+
+
+================================================================================
+END OF FE_plan.txt
+================================================================================
