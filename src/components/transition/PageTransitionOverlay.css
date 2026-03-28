@@ -1,0 +1,30 @@
+.page-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.page-transition-fade {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 18, 33, 0.09);
+  animation: page-fade-slide 240ms ease;
+  will-change: opacity, transform;
+}
+
+@keyframes page-fade-slide {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
