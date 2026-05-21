@@ -1,5 +1,6 @@
 export type PostType = 'ARTICLE' | 'VIDEO_LESSON' | 'COURSE_AD' | 'NEWS' | 'TUTORIAL'
 export type PostStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
+export type AccessLevel = 'FREE' | 'PREMIUM'
 export type CommentStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
 
 export interface BlogCategory {
@@ -26,6 +27,7 @@ export interface BlogPost {
   featuredImage: string | null
   postType: PostType
   status: PostStatus
+  accessLevel: AccessLevel
 
   // Video-specific fields
   videoUrl: string | null
@@ -63,6 +65,7 @@ export interface BlogPostListItem {
   featuredImage: string | null
   postType: PostType
   status: PostStatus
+  accessLevel: AccessLevel
   authorName: string
   viewsCount: number
   likesCount: number

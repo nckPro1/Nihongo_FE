@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { blogService } from '../../api/services/blogService'
-import type { BlogPostListItem, BlogPostPage } from '../../types/blog'
+import type { BlogPostPage } from '../../types/blog'
 import './blog.css'
 
 function formatDate(iso: string) {

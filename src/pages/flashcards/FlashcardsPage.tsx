@@ -9,7 +9,6 @@ import { useSpeech } from '../../hooks/useSpeech'
 import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal'
 import './flashcards.css'
 import { AnimatedPage } from '../../components/animated/AnimatedPage'
-import { motion, AnimatePresence } from 'framer-motion'
 import { AnimatedButton } from '../../components/animated/AnimatedButton'
 import { FlipCard } from '../../components/animated/FlipCard'
 import Skeleton from 'react-loading-skeleton'
@@ -37,7 +36,6 @@ export function FlashcardsPage() {
   const [error, setError] = useState<string | null>(null)
   const [studyIdx, setStudyIdx] = useState(0)
   const [flipped, setFlipped] = useState(false)
-  const [direction, setDirection] = useState(0)
   const [orderKey, setOrderKey] = useState(0)
 
   const [manualJa, setManualJa] = useState('')
@@ -129,14 +127,12 @@ export function FlashcardsPage() {
 
   const goNext = useCallback(() => {
     if (cards.length === 0) return
-    setDirection(1)
     setFlipped(false)
     setStudyIdx((i) => (i + 1 >= cards.length ? 0 : i + 1))
   }, [cards.length])
 
   const goPrev = useCallback(() => {
     if (cards.length === 0) return
-    setDirection(-1)
     setFlipped(false)
     setStudyIdx((i) => (i <= 0 ? cards.length - 1 : i - 1))
   }, [cards.length])

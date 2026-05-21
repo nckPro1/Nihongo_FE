@@ -73,7 +73,7 @@ export function AdminBlogEditPage() {
           setExcerpt(post.excerpt)
           setPostType(post.postType)
           setStatus(post.status)
-          setSelectedTags(post.tags.map(t => t.id))
+          setSelectedTags(post.tags.map((t: { id: number }) => t.id))
           setFeaturedImage(post.featuredImage || '')
           setVideoUrl(post.videoUrl || '')
           setVideoDuration(post.videoDurationMinutes || '')

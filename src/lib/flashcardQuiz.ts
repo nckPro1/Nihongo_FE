@@ -297,7 +297,6 @@ export function stripPunctuation(s: string): string {
 /** Sinh ra danh sách các biến thể đáp án được chấp nhận */
 export function getAcceptableVariants(expected: string, mode: FlashcardQuizMode): string[] {
   const variants = new Set<string>()
-  const normalizedExpected = normalizeTyping(expected)
 
   if (mode === 'ja-vi') {
     // Tách theo dấu phẩy, dấu chấm phẩy, hoặc dấu gạch chéo

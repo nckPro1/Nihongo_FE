@@ -7,8 +7,6 @@ import { listFlashcards } from '../../api/services/flashcardService'
 import {
   buildQuizPlan,
   enabledFormatList,
-  expectedKeyboardHint,
-  gradeKeyboardAnswer,
   gradeKeyboardAnswerDetailed,
   type GradeResult,
   minCardsForQuizFormats,
@@ -455,10 +453,6 @@ export function FlashcardQuizPage() {
   const mcqCorrect =
     current?.format === 'mcq' && selectedMcqId !== null
       ? selectedMcqId === current.target.id
-      : null
-  const kbCorrect =
-    current?.format === 'keyboard' && kbDone
-      ? gradeKeyboardAnswer(kbInput, current.target, current.mode)
       : null
   const tfCorrect =
     current?.format === 'truefalse' && tfPick !== null
