@@ -8,13 +8,21 @@ import { quickTranslate } from '../../api/services/vocabularyService'
 import { useAuthStore } from '../../store/authStore'
 import type { QuickTranslateData } from '../../types/vocabulary'
 import { PassageTranslateSection } from './PassageTranslateSection'
+import { useSpeech } from '../../hooks/useSpeech'
 import './home.css'
+import { AnimatedPage } from '../../components/animated/AnimatedPage'
+import { AnimatedCard } from '../../components/animated/AnimatedCard'
+import { AnimatedButton } from '../../components/animated/AnimatedButton'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 const DECOR_IMG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuAgJFBm1E2y8bU_x5bCM6YY1nmEkWGMW0jOVjzeMfc_D395TyCZ9z96hq2xyREiC0LX7XeJ4G7Jqp10zhYbyxbujBe5Uaq6t_DO8mXtu4z3WABWytp517GHUNDMza1aZnpfUTAJZxe_--_TrI8IopKHZYsZpVI1wFmZ7Z392gLIzBlh3wbts66VbaOEvpkTB1-nVQn9fs9uAdqfUsTYWzE3GSc869bP1FpngqCudpZlgzVwk58uBzdk3ivj5fW9z2KzZBHzSDban2rY'
 
 export function HomePage() {
   const user = useAuthStore((s) => s.user)
+  const { speak } = useSpeech()
+  const sessionCache = useState(() => new Map<string, QuickTranslateData>())[0]
   const [vocabQuery, setVocabQuery] = useState('')
   const [vocabLoading, setVocabLoading] = useState(false)
   const [vocabError, setVocabError] = useState<string | null>(null)
@@ -28,12 +36,22 @@ export function HomePage() {
     const q = vocabQuery.trim()
     if (!q) return
     setVocabError(null)
+
+    // Session cache: cùng từ trong tab không gọi lại API
+    const cached = sessionCache.get(q.toLowerCase())
+    if (cached) {
+      setFlashcardMsg(null)
+      setVocabResult(cached)
+      return
+    }
+
     setVocabLoading(true)
     try {
       const res = await quickTranslate(q)
       if (res.success && res.data) {
         setFlashcardMsg(null)
         setVocabResult(res.data)
+        sessionCache.set(q.toLowerCase(), res.data)
       } else {
         setFlashcardMsg(null)
         setVocabResult(null)
@@ -53,7 +71,7 @@ export function HomePage() {
 
   useEffect(() => {
     const prev = document.title
-    document.title = 'HikariGo — Trang chủ'
+    document.title = 'Zenigo — Trang chủ'
     return () => {
       document.title = prev
     }
@@ -99,7 +117,7 @@ export function HomePage() {
         sourceQuery: vocabQuery.trim() || undefined,
       })
       if (res.success) {
-        setFlashcardMsg({ type: 'ok', text: res.message || 'Đã thêm thẻ vào dự án đã chọn.' })
+        setFlashcardMsg({ type: 'ok', text: res.message || 'Đã thêm thẻ vào Zenigo đã chọn.' })
         const pr = await listLearningProjects()
         if (pr.success && pr.data) {
           setLearningProjects(pr.data)
@@ -134,7 +152,7 @@ export function HomePage() {
         }
 
   return (
-    <>
+    <AnimatedPage>
       <header className="hg-header">
         <div>
           <p className="hg-kicker">光へ (HIKARI E)</p>
@@ -144,7 +162,7 @@ export function HomePage() {
             <span className="hg-title-accent">{displayName}</span>
           </h1>
           <p className="hg-lead">
-            HikariGo giúp bạn học tiếng Nhật có lộ trình: từ vựng, ngữ pháp và luyện đề JLPT — từng bước, đều đặn mỗi
+            Zenigo giúp bạn học tiếng Nhật có lộ trình: từ vựng, ngữ pháp và luyện đề JLPT — từng bước, đều đặn mỗi
             ngày.
           </p>
         </div>
@@ -155,7 +173,7 @@ export function HomePage() {
       </header>
 
       <div className="hg-bento">
-        <div className="hg-card hg-bento-card--sm">
+        <AnimatedCard className="hg-card hg-bento-card--sm">
           <span className="material-symbols-outlined hg-icon-xl" aria-hidden>
             style
           </span>
@@ -171,24 +189,20 @@ export function HomePage() {
               VÀO HỌC <span className="material-symbols-outlined hg-icon-sm">arrow_forward</span>
             </Link>
           </div>
-        </div>
+        </AnimatedCard>
 
-        <div className="hg-card hg-card--border hg-bento-card--lg">
+        <AnimatedCard className="hg-card hg-card--border hg-bento-card--lg" noHover>
           <div className="hg-search-row">
             <div style={{ flex: 1 }}>
               <span className="hg-tag">Tra cứu nhanh</span>
               <h3 className="hg-h3-lg">Từ điển &amp; ngữ cảnh</h3>
-              <p>
-                Dịch nhanh hai chiều Việt ↔ Nhật qua DeepSeek — chỉ từ hoặc cụm ngắn (tối đa 100 ký tự). Nhập tiếng Việt
-                có dấu hoặc tiếng Nhật.
-              </p>
               <div className="hg-search-input-wrap">
                 <span className="material-symbols-outlined">search</span>
                 <input
                   type="search"
                   placeholder="VD: ăn cơm, nhật bản — hoặc 木漏れ日, 頑張る…"
                   autoComplete="off"
-                  maxLength={100}
+                  maxLength={50}
                   value={vocabQuery}
                   onChange={(e) => setVocabQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -198,17 +212,57 @@ export function HomePage() {
                     }
                   }}
                 />
-                <button
+                {vocabQuery.length > 30 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: '90px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      fontSize: '0.75rem',
+                      color: vocabQuery.length >= 50 ? '#ef4444' : '#f59e0b',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {vocabQuery.length}/50
+                  </span>
+                )}
+                <AnimatedButton
                   type="button"
                   className="hg-search-btn"
                   disabled={vocabLoading || !vocabQuery.trim()}
                   onClick={() => void runVocabLookup()}
                 >
                   {vocabLoading ? '…' : 'Tra cứu'}
-                </button>
+                </AnimatedButton>
               </div>
               {vocabError ? <p className="hg-vocab-error">{vocabError}</p> : null}
-              {vocabResult ? (
+              
+              {vocabLoading ? (
+                <div className="hg-vocab-result" style={{ marginTop: '1.5rem' }}>
+                  <p className="hg-vocab-direction">
+                    <Skeleton width={100} height={16} />
+                  </p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <Skeleton width={80} height={14} style={{ marginBottom: '0.25rem' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Skeleton width={180} height={28} />
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <Skeleton width={100} height={14} style={{ marginBottom: '0.25rem' }} />
+                    <Skeleton width={140} height={20} />
+                  </div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <Skeleton width={100} height={14} style={{ marginBottom: '0.25rem' }} />
+                    <Skeleton width="90%" height={20} />
+                  </div>
+                  <div className="hg-vocab-flashcard-row" style={{ marginTop: '1.5rem', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <Skeleton width={200} height={38} style={{ borderRadius: '0.5rem' }} />
+                    <Skeleton width={130} height={38} style={{ borderRadius: '0.5rem' }} />
+                  </div>
+                </div>
+              ) : vocabResult ? (
                 <div className="hg-vocab-result">
                   <p className="hg-vocab-direction" aria-label="Hướng tra cứu">
                     {vocabLabels.badge}
@@ -216,7 +270,17 @@ export function HomePage() {
                   {vocabResult.kanji ? (
                     <>
                       <h4>{vocabLabels.main}</h4>
-                      <p>{vocabResult.kanji}</p>
+                      <p style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {vocabResult.kanji}
+                        <button
+                          type="button"
+                          aria-label="Phát âm"
+                          onClick={() => vocabResult.kanji && speak(vocabResult.kanji)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', lineHeight: 1, color: '#4f46e5' }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>volume_up</span>
+                        </button>
+                      </p>
                     </>
                   ) : null}
                   {vocabResult.romaji ? (
@@ -235,7 +299,7 @@ export function HomePage() {
                     <div className="hg-vocab-flashcard-row">
                       {learningProjects.length > 0 ? (
                         <div className="hg-vocab-project-row">
-                          <label htmlFor="hg-vocab-target-project">Thêm vào dự án</label>
+                          <label htmlFor="hg-vocab-target-project">Thêm vào Zenigo</label>
                           <select
                             id="hg-vocab-target-project"
                             className="hg-vocab-project-select"
@@ -250,7 +314,7 @@ export function HomePage() {
                           </select>
                         </div>
                       ) : null}
-                      <button
+                      <AnimatedButton
                         type="button"
                         className="hg-vocab-flashcard-btn"
                         disabled={!canAddFlashcard}
@@ -259,8 +323,8 @@ export function HomePage() {
                         <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden>
                           bookmark_add
                         </span>
-                        {flashcardSaving ? 'Đang thêm…' : 'Thêm vào dự án'}
-                      </button>
+                        {flashcardSaving ? 'Đang thêm…' : 'Thêm vào Zenigo'}
+                      </AnimatedButton>
                       <Link to="/learn" className="hg-sidebar-user-sub" style={{ fontWeight: 600 }}>
                         Mở học tập →
                       </Link>
@@ -281,38 +345,53 @@ export function HomePage() {
               <span>辞書</span>
             </div>
           </div>
-        </div>
+        </AnimatedCard>
 
-        <div className="hg-card hg-bento-card--wide">
+        <AnimatedCard className="hg-card hg-bento-card--wide">
           <div className="hg-progress-head">
             <h4>Tiến độ lộ trình</h4>
             <span>{monthYear}</span>
           </div>
-          <div className="hg-progress-rows">
-            <div className="hg-progress-row">
-              <div className="hg-progress-labels">
-                <span>TỪ VỰNG N3</span>
-                <span>75%</span>
-              </div>
-              <div className="hg-bar">
-                <div className="hg-bar-fill" style={{ width: '75%' }} />
-                <div className="hg-bar-knob" style={{ left: '75%' }} />
-              </div>
-            </div>
-            <div className="hg-progress-row">
-              <div className="hg-progress-labels">
-                <span>NGỮ PHÁP N3</span>
-                <span>42%</span>
-              </div>
-              <div className="hg-bar">
-                <div className="hg-bar-fill" style={{ width: '42%' }} />
-                <div className="hg-bar-knob" style={{ left: '42%' }} />
-              </div>
-            </div>
+          <div
+            className={`hg-progress-rows${learningProjects.length > 4 ? ' hg-progress-rows--scroll' : ''}`}
+          >
+            {!user ? (
+              <p className="hg-progress-empty">
+                <Link to="/login">Đăng nhập</Link> để xem tiến độ quiz theo tên Zenigo.
+              </p>
+            ) : learningProjects.length === 0 ? (
+              <p className="hg-progress-empty">
+                Chưa có Zenigo.{' '}
+                <Link to="/learn">Mở Học tập</Link> để tạo Zenigo và làm quiz — tiến độ sẽ hiện tại đây.
+              </p>
+            ) : (
+              learningProjects.map((p) => {
+                const pct = Math.min(100, Math.max(0, p.progressPercent ?? 0))
+                return (
+                  <div key={p.id} className="hg-progress-row">
+                    <div className="hg-progress-labels">
+                      <span className="hg-progress-folder" title={p.name}>
+                        {p.name}
+                      </span>
+                      <span>{pct}%</span>
+                    </div>
+                    <div className="hg-bar">
+                      <div className="hg-bar-fill" style={{ width: `${pct}%` }} />
+                      <div className="hg-bar-knob" style={{ left: `${pct}%` }} />
+                    </div>
+                  </div>
+                )
+              })
+            )}
           </div>
-        </div>
+          {user && learningProjects.length > 0 ? (
+            <Link to="/learn" className="hg-progress-foot-link">
+              Quản lý Zenigo &amp; quiz →
+            </Link>
+          ) : null}
+        </AnimatedCard>
 
-        <div className="hg-pro-card hg-bento-card--side">
+        <AnimatedCard className="hg-pro-card hg-bento-card--side">
           <div>
             <div className="hg-pro-head">
               <span>Gói học</span>
@@ -323,29 +402,29 @@ export function HomePage() {
                 stars
               </span>
             </div>
-            <h3>HikariGo Pro</h3>
+            <h3>Zenigo Pro</h3>
             <p>Mở khóa bộ đề luyện JLPT đầy đủ và nội dung nâng cao (khi tính năng được bật trên tài khoản).</p>
           </div>
           <div>
             <p className="hg-pro-status-label">Trạng thái</p>
-            <p className="hg-pro-status-value">{user?.isPro ? 'HikariGo Pro — đang hoạt động' : 'Gói miễn phí'}</p>
-            <button type="button" className="hg-pro-btn">
+            <p className="hg-pro-status-value">{user?.isPro ? 'Zenigo Pro — đang hoạt động' : 'Gói miễn phí'}</p>
+            <AnimatedButton type="button" className="hg-pro-btn" liftOnHover>
               {user?.isPro ? 'Quản lý gói' : 'Tìm hiểu Pro'}
-            </button>
+            </AnimatedButton>
           </div>
-        </div>
+        </AnimatedCard>
       </div>
 
       <PassageTranslateSection />
 
       <footer className="hg-footer">
         <div className="hg-footer-links">
-          <span>HikariGo © {new Date().getFullYear()}</span>
+          <span>Zenigo © {new Date().getFullYear()}</span>
           <span>Bảo mật</span>
           <span>Điều khoản</span>
         </div>
         <div className="hg-footer-motto">光へ、一歩ずつ</div>
       </footer>
-    </>
+    </AnimatedPage>
   )
 }

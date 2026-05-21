@@ -5,11 +5,13 @@ import { passageTranslate, PASSAGE_MAX_CHARS } from '../../api/services/passageS
 import { useAuthStore } from '../../store/authStore'
 import type { PassageCompound, PassageTranslateData } from '../../types/passage'
 import { segmentJapaneseLine } from './passageSegmentUtils'
+import { useSpeech } from '../../hooks/useSpeech'
 
 type PopupState = { compound: PassageCompound; left: number; top: number }
 
 export function PassageTranslateSection() {
   const token = useAuthStore((s) => s.token)
+  const { speak } = useSpeech()
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -101,7 +103,19 @@ export function PassageTranslateSection() {
                     {directionLabel}
                   </p>
                 ) : null}
-                <label>Câu tiếng Nhật</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  Câu tiếng Nhật
+                  {japanese ? (
+                    <button
+                      type="button"
+                      aria-label="Phát âm"
+                      onClick={() => speak(japanese)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', lineHeight: 1, color: '#4f46e5' }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>volume_up</span>
+                    </button>
+                  ) : null}
+                </label>
                 <div className="hg-example-jp hg-passage-jp-interactive" lang="ja">
                   {parts.map((p, idx) =>
                     p.kind === 'text' ? (

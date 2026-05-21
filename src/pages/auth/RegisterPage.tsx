@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { BRAND_LOGO_URL } from '../../constants/brandAssets'
 import { useAuthStore } from '../../store/authStore'
 import './auth.css'
 
@@ -67,15 +68,15 @@ export function RegisterPage() {
     <main className="auth-shell">
       <section className="auth-left">
         <div className="floating-brand reveal">
-          <img className="brand-logo" src="/logo.jpg" alt="HikariGo logo" />
-          <span className="brand-name">HikariGo</span>
+          <img className="brand-logo" src={BRAND_LOGO_URL} alt="Zenigo logo" />
+          <span className="brand-name">Zenigo</span>
         </div>
         <div className="auth-left-content reveal reveal-delay-1">
           <h2 className="jp-title reveal reveal-delay-1">日本語を学ぼう</h2>
           <div className="left-figure reveal reveal-delay-2">
             <img
-              src="/logo.jpg"
-              alt="HikariGo logo"
+              src={BRAND_LOGO_URL}
+              alt="Zenigo logo"
             />
             <div className="left-blob-a" />
             <div className="left-blob-b" />
@@ -89,8 +90,8 @@ export function RegisterPage() {
       <section className="auth-right">
         <form className="auth-card" onSubmit={onSubmit}>
           <div className="brand-strip reveal">
-            <img className="brand-logo" src="/logo.jpg" alt="HikariGo logo" />
-            <span className="brand-name">HikariGo</span>
+            <img className="brand-logo" src={BRAND_LOGO_URL} alt="Zenigo logo" />
+            <span className="brand-name">Zenigo</span>
           </div>
           <h1 className="auth-title reveal reveal-delay-1">Tạo tài khoản của bạn</h1>
           <p className="auth-subtitle reveal reveal-delay-2">Học tiếng Nhật với luồng học tập thông minh.</p>

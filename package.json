@@ -12,9 +12,16 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@tiptap/extension-image": "^3.23.5",
+    "@tiptap/extension-link": "^3.23.5",
+    "@tiptap/react": "^3.23.5",
+    "@tiptap/starter-kit": "^3.23.5",
     "axios": "^1.13.6",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^12.39.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-loading-skeleton": "^3.5.0",
     "react-router-dom": "^7.13.2",
     "zustand": "^5.0.12"
   },
@@ -23,6 +30,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^24.12.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

@@ -220,6 +220,115 @@
   text-decoration: underline;
 }
 
+.profile-muted {
+  color: var(--hg-on-surface-variant);
+  font-size: 0.875rem;
+  margin: 0 0 1rem;
+}
+
+.profile-fav-intro {
+  margin: -0.35rem 0 1.25rem;
+  font-size: 0.875rem;
+  color: var(--hg-on-surface-variant);
+  line-height: 1.5;
+}
+
+.profile-fav-err {
+  color: var(--hg-tertiary);
+  font-size: 0.875rem;
+  margin: 0 0 1rem;
+}
+
+.profile-fav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.profile-fav-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.45rem;
+  border: 1px solid rgba(199, 196, 216, 0.45);
+  background: var(--hg-surface-container-lowest);
+}
+
+.profile-fav-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-fav-badge {
+  display: inline-block;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hg-primary);
+  margin-bottom: 0.35rem;
+}
+
+.profile-fav-title {
+  display: block;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--hg-on-surface);
+  text-decoration: none;
+}
+
+.profile-fav-title:hover {
+  color: var(--hg-primary);
+  text-decoration: underline;
+}
+
+.profile-fav-title--static {
+  display: block;
+  font-family: inherit;
+}
+
+.profile-fav-detail {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--hg-on-surface-variant);
+  line-height: 1.45;
+}
+
+.profile-fav-meta {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  color: var(--hg-outline);
+}
+
+.profile-fav-remove {
+  flex-shrink: 0;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--hg-outline-variant);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--hg-on-surface-variant);
+  cursor: pointer;
+}
+
+.profile-fav-remove:hover:not(:disabled) {
+  background: var(--hg-surface-container-low);
+  color: var(--hg-tertiary);
+}
+
+.profile-fav-remove:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 @media (min-width: 1280px) {
   .profile-shell {
     max-width: none;

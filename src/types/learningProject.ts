@@ -6,6 +6,10 @@ export type LearningProjectItem = {
   description?: string | null
   createdAt?: string | null
   cardCount: number
+  /** Trung bình điểm nắm (0–100) trên mọi thẻ; thẻ chưa quiz = 0 */
+  progressPercent?: number
+  /** Thẻ có mastery ≥ 80 */
+  masteredCardCount?: number
 }
 
 export type CreateLearningProjectPayload = {

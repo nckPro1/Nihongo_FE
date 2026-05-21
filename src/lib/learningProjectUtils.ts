@@ -1,6 +1,6 @@
 import type { LearningProjectItem } from '../types/learningProject'
 
-/** Ưu tiên "Kho mặc định", không thì dự án tạo sớm nhất — dùng khi thêm thẻ từ trang chủ. */
+/** Ưu tiên "Kho mặc định", không thì Zenigo tạo sớm nhất — dùng khi thêm thẻ từ trang chủ. */
 export function pickDefaultProjectId(projects: LearningProjectItem[]): string | null {
   if (projects.length === 0) return null
   const def = projects.find((p) => p.name === 'Kho mặc định')

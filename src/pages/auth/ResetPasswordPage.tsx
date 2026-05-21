@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { BRAND_LOGO_URL } from '../../constants/brandAssets'
 import { authService } from '../../api/services/authService'
 import './auth.css'
 
@@ -50,8 +51,8 @@ export function ResetPasswordPage() {
       <section className="auth-right auth-right--full">
         <form className="auth-card" onSubmit={onSubmit}>
           <div className="brand-strip reveal">
-            <img className="brand-logo" src="/logo.jpg" alt="HikariGo logo" />
-            <span className="brand-name">HikariGo</span>
+            <img className="brand-logo" src={BRAND_LOGO_URL} alt="Zenigo logo" />
+            <span className="brand-name">Zenigo</span>
           </div>
           <h1 className="auth-title reveal reveal-delay-1">Đặt lại mật khẩu</h1>
           <p className="auth-subtitle reveal reveal-delay-2">Nhập mật khẩu mới cho tài khoản của bạn.</p>

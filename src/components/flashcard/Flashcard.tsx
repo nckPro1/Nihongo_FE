@@ -1,4 +1,5 @@
 import { useCallback, useState, type KeyboardEvent } from 'react'
+import { useSpeech } from '../../hooks/useSpeech'
 import './flashcard-3d.css'
 
 /** Khớp cấu trúc từ backend (DictionaryResponse / tương đương). */
@@ -22,6 +23,7 @@ function emptyFallback(s: string, dash = '—') {
 
 export function Flashcard({ data, className = '' }: FlashcardProps) {
   const [isFlipped, setIsFlipped] = useState(false)
+  const { speak } = useSpeech()
 
   const toggle = useCallback(() => {
     setIsFlipped((v) => !v)
@@ -40,7 +42,35 @@ export function Flashcard({ data, className = '' }: FlashcardProps) {
   return (
     <div
       className={`fc-perspective mx-auto w-full max-w-xl transition-transform duration-300 ease-out hover:scale-[1.02] ${className}`.trim()}
+      style={{ position: 'relative' }}
     >
+      {/* Nút phát âm — đặt ngoài flip button để không trigger lật */}
+      <button
+        type="button"
+        aria-label="Phát âm"
+        onClick={() => speak(isFlipped ? (data.hiragana || data.kanji) : data.kanji)}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          zIndex: 10,
+          background: 'rgba(255,255,255,0.85)',
+          border: 'none',
+          borderRadius: '50%',
+          width: '34px',
+          height: '34px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+        }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#4f46e5' }}>
+          volume_up
+        </span>
+      </button>
+
       <button
         type="button"
         onClick={toggle}

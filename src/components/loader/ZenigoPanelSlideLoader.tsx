@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import './HikarigoPanelSlideLoader.css'
+import { BRAND_LOGO_URL } from '../../constants/brandAssets'
+import './ZenigoPanelSlideLoader.css'
 
-type HikarigoPanelSlideLoaderProps = {
+type ZenigoPanelSlideLoaderProps = {
   isLoading: boolean
   onLoadingComplete?: () => void
 }
@@ -9,7 +10,7 @@ type HikarigoPanelSlideLoaderProps = {
 const TOTAL_LOAD_MS = 5000
 const PANEL_COUNT = 4
 
-export function HikarigoPanelSlideLoader({ isLoading, onLoadingComplete }: HikarigoPanelSlideLoaderProps) {
+export function ZenigoPanelSlideLoader({ isLoading, onLoadingComplete }: ZenigoPanelSlideLoaderProps) {
   const [animateIn, setAnimateIn] = useState(false)
   const [showCenter, setShowCenter] = useState(false)
 
@@ -46,27 +47,27 @@ export function HikarigoPanelSlideLoader({ isLoading, onLoadingComplete }: Hikar
   }
 
   return (
-    <div className="hikarigo-loader-overlay" role="status" aria-live="polite" aria-label="Hikarigo is loading">
-      <div className="hikarigo-loader-panels">
+    <div className="zenigo-loader-overlay" role="status" aria-live="polite" aria-label="Zenigo is loading">
+      <div className="zenigo-loader-panels">
         {panels.slice(0, PANEL_COUNT).map((panel) => (
           <div
             key={panel.key}
-            className={`hikarigo-loader-panel ${panel.className} ${panel.direction} ${animateIn ? 'settled' : ''}`}
+            className={`zenigo-loader-panel ${panel.className} ${panel.direction} ${animateIn ? 'settled' : ''}`}
             style={{ transitionDelay: `${panel.delayMs}ms` }}
           />
         ))}
       </div>
 
-      <div className={`hikarigo-loader-center ${showCenter ? 'visible' : ''}`}>
-        <div className="hikarigo-logo-wrap">
-          <img src="/logo.jpg" alt="Hikarigo logo" className="hikarigo-logo-image" />
-          <div className="hikarigo-logo-text">Hikarigo</div>
+      <div className={`zenigo-loader-center ${showCenter ? 'visible' : ''}`}>
+        <div className="zenigo-logo-wrap">
+          <img src={BRAND_LOGO_URL} alt="Zenigo logo" className="zenigo-logo-image" />
+          <div className="zenigo-logo-text">Zenigo</div>
         </div>
-        <div className="hikarigo-chibi" aria-hidden>
+        <div className="zenigo-chibi" aria-hidden>
           <span className="chibi-face">( ^ - ^ )</span>
           <span className="chibi-wave">ﾉ</span>
         </div>
-        <div className="hikarigo-dots" aria-hidden>
+        <div className="zenigo-dots" aria-hidden>
           <span />
           <span />
           <span />

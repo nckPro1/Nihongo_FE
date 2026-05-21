@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
-import { HikarigoPanelSlideLoader } from '../../components/loader/HikarigoPanelSlideLoader'
+import { ZenigoPanelSlideLoader } from '../../components/loader/ZenigoPanelSlideLoader'
 import './auth.css'
 
 export function GoogleCallbackPage() {
@@ -70,6 +70,6 @@ export function GoogleCallbackPage() {
           </div>
         </section>
       </main>
-    ) : <HikarigoPanelSlideLoader isLoading onLoadingComplete={() => {}} />
+    ) : <ZenigoPanelSlideLoader isLoading onLoadingComplete={() => {}} />
   )
 }

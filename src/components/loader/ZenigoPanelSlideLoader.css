@@ -1,4 +1,4 @@
-.hikarigo-loader-overlay {
+.zenigo-loader-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -6,14 +6,14 @@
   overflow: hidden;
 }
 
-.hikarigo-loader-panels {
+.zenigo-loader-panels {
   position: absolute;
   inset: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
 }
 
-.hikarigo-loader-panel {
+.zenigo-loader-panel {
   position: relative;
   height: 100%;
   transform: translateY(0);
@@ -21,19 +21,19 @@
   will-change: transform;
 }
 
-.hikarigo-loader-panel.from-top {
+.zenigo-loader-panel.from-top {
   transform: translateY(-105%);
 }
 
-.hikarigo-loader-panel.from-bottom {
+.zenigo-loader-panel.from-bottom {
   transform: translateY(105%);
 }
 
-.hikarigo-loader-panel.settled {
+.zenigo-loader-panel.settled {
   transform: translateY(0);
 }
 
-.hikarigo-loader-panel::after {
+.zenigo-loader-panel::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -73,7 +73,7 @@
   background-image: repeating-linear-gradient(-45deg, transparent 0 10px, rgba(255, 255, 255, 0.45) 10px 12px);
 }
 
-.hikarigo-loader-center {
+.zenigo-loader-center {
   position: absolute;
   inset: 0;
   display: grid;
@@ -84,18 +84,18 @@
   pointer-events: none;
 }
 
-.hikarigo-loader-center.visible {
+.zenigo-loader-center.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.hikarigo-logo-wrap {
+.zenigo-logo-wrap {
   display: grid;
   justify-items: center;
   gap: 10px;
 }
 
-.hikarigo-logo-image {
+.zenigo-logo-image {
   width: 110px;
   height: 110px;
   border-radius: 50%;
@@ -104,7 +104,7 @@
   box-shadow: 0 0 28px rgba(255, 204, 180, 0.65);
 }
 
-.hikarigo-logo-text {
+.zenigo-logo-text {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 40px;
   font-weight: 800;
@@ -113,7 +113,7 @@
   text-shadow: 0 0 14px rgba(255, 190, 150, 0.8);
 }
 
-.hikarigo-chibi {
+.zenigo-chibi {
   margin-top: 10px;
   display: flex;
   align-items: center;
@@ -127,34 +127,34 @@
 .chibi-wave {
   margin-left: 3px;
   transform-origin: 0% 80%;
-  animation: hikarigo-wave 640ms infinite ease-in-out;
+  animation: zenigo-wave 640ms infinite ease-in-out;
 }
 
-.hikarigo-dots {
+.zenigo-dots {
   margin-top: 14px;
   display: flex;
   justify-content: center;
   gap: 8px;
 }
 
-.hikarigo-dots span {
+.zenigo-dots span {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: #fff;
   opacity: 0.55;
-  animation: hikarigo-dot 0.9s infinite ease-in-out;
+  animation: zenigo-dot 0.9s infinite ease-in-out;
 }
 
-.hikarigo-dots span:nth-child(2) {
+.zenigo-dots span:nth-child(2) {
   animation-delay: 0.12s;
 }
 
-.hikarigo-dots span:nth-child(3) {
+.zenigo-dots span:nth-child(3) {
   animation-delay: 0.24s;
 }
 
-@keyframes hikarigo-wave {
+@keyframes zenigo-wave {
   0%,
   100% {
     transform: rotate(0deg);
@@ -164,7 +164,7 @@
   }
 }
 
-@keyframes hikarigo-dot {
+@keyframes zenigo-dot {
   0%,
   80%,
   100% {

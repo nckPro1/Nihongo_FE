@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { createLearningProject, listLearningProjects } from '../../api/services/learningProjectService'
+import { createLearningProject, deleteLearningProject, listLearningProjects } from '../../api/services/learningProjectService'
 import type { LearningProjectItem } from '../../types/learningProject'
+import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal'
 import '../flashcards/flashcards.css'
+import { AnimatedPage } from '../../components/animated/AnimatedPage'
+import { AnimatedCard } from '../../components/animated/AnimatedCard'
+import { AnimatedButton } from '../../components/animated/AnimatedButton'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 export function LearningProjectsPage() {
   const [projects, setProjects] = useState<LearningProjectItem[]>([])
@@ -11,6 +17,8 @@ export function LearningProjectsPage() {
   const [newName, setNewName] = useState('')
   const [creating, setCreating] = useState(false)
   const [createMsg, setCreateMsg] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null)
 
   const load = useCallback(async () => {
     setError(null)
@@ -21,11 +29,11 @@ export function LearningProjectsPage() {
         setProjects(res.data)
       } else {
         setProjects([])
-        setError(res.message || 'Không tải được danh sách dự án.')
+        setError(res.message || 'Không tải được danh sách Zenigo.')
       }
     } catch {
       setProjects([])
-      setError('Không tải được danh sách dự án.')
+      setError('Không tải được danh sách Zenigo.')
     } finally {
       setLoading(false)
     }
@@ -37,11 +45,25 @@ export function LearningProjectsPage() {
 
   useEffect(() => {
     const prev = document.title
-    document.title = 'Dự án học tập — HikariGo'
+    document.title = 'Zenigo — Học tập'
     return () => {
       document.title = prev
     }
   }, [])
+
+  const handleDelete = async () => {
+    if (!confirmDelete) return
+    setDeletingId(confirmDelete.id)
+    try {
+      await deleteLearningProject(confirmDelete.id)
+      setProjects((prev) => prev.filter((p) => p.id !== confirmDelete.id))
+      setConfirmDelete(null)
+    } catch {
+      // ignore
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   const onCreate = async (e: FormEvent) => {
     e.preventDefault()
@@ -53,7 +75,7 @@ export function LearningProjectsPage() {
       const res = await createLearningProject({ name: n })
       if (res.success) {
         setNewName('')
-        setCreateMsg('Đã tạo dự án.')
+        setCreateMsg('Đã tạo Zenigo.')
         await load()
       } else {
         setCreateMsg(res.message || 'Không tạo được.')
@@ -66,53 +88,123 @@ export function LearningProjectsPage() {
   }
 
   return (
-    <div className="hg-flash-page">
-      <header className="hg-flash-header">
-        <h1>Dự án học tập</h1>
-        <p className="hg-flash-lead">
-          Mỗi dự án là một &quot;folder&quot; chứa bộ flashcard riêng. Chọn dự án để ôn thẻ hoặc tạo dự án mới (ví dụ:
-          JLPT N3, Từ vựng sách X).
-        </p>
-      </header>
-
-      <section className="hg-learn-create" aria-labelledby="hg-learn-create-title">
-        <h2 id="hg-learn-create-title" className="hg-learn-create-title">
-          Tạo dự án mới
-        </h2>
-        <form className="hg-learn-create-form" onSubmit={(e) => void onCreate(e)}>
-          <input
-            type="text"
-            className="hg-learn-create-input"
-            placeholder="Tên dự án (vd: Ôn từ N3)"
-            maxLength={200}
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            aria-label="Tên dự án"
+    <AnimatedPage>
+      <div className="hg-flash-page">
+        {confirmDelete ? (
+          <ConfirmDeleteModal
+            title="Xoá bộ thẻ này?"
+            target={confirmDelete.name}
+            warning="Toàn bộ thẻ và tiến độ quiz bên trong sẽ bị xoá vĩnh viễn. Hành động không thể hoàn tác."
+            loading={deletingId === confirmDelete.id}
+            onConfirm={() => void handleDelete()}
+            onCancel={() => setConfirmDelete(null)}
           />
-          <button type="submit" className="hg-flash-btn" disabled={creating || !newName.trim()}>
-            {creating ? 'Đang tạo…' : 'Tạo dự án'}
-          </button>
-        </form>
-        {createMsg ? <p className="hg-learn-create-msg">{createMsg}</p> : null}
-      </section>
+        ) : null}
+        <header className="hg-flash-header">
+          <h1>Zenigo</h1>
+        </header>
 
-      {loading ? <p className="hg-flash-lead">Đang tải…</p> : null}
-      {error ? <p className="hg-flash-err">{error}</p> : null}
+        <section className="hg-learn-create" aria-labelledby="hg-learn-create-title">
+          <h2 id="hg-learn-create-title" className="hg-learn-create-title">
+            Tạo Zenigo mới
+          </h2>
+          <form className="hg-learn-create-form" onSubmit={(e) => void onCreate(e)}>
+            <input
+              type="text"
+              className="hg-learn-create-input"
+              placeholder="Tên Zenigo (vd: Ôn từ N3)"
+              maxLength={200}
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              aria-label="Tên Zenigo"
+            />
+            <AnimatedButton type="submit" className="hg-flash-btn" disabled={creating || !newName.trim()} liftOnHover>
+              {creating ? 'Đang tạo…' : 'Tạo Zenigo'}
+            </AnimatedButton>
+          </form>
+          {createMsg ? <p className="hg-learn-create-msg">{createMsg}</p> : null}
+        </section>
 
-      <section className="hg-learn-grid-section" aria-labelledby="hg-learn-grid-title">
-        <h2 id="hg-learn-grid-title" className="hg-learn-grid-heading">
-          Danh sách ({projects.length})
-        </h2>
-        <div className="hg-learn-grid">
-          {projects.map((p) => (
-            <Link key={p.id} to={`/learn/${p.id}`} className="hg-learn-card">
-              <span className="hg-learn-card-name">{p.name}</span>
-              {p.description ? <span className="hg-learn-card-desc">{p.description}</span> : null}
-              <span className="hg-learn-card-meta">{p.cardCount} thẻ</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-    </div>
+        {error ? <p className="hg-flash-err">{error}</p> : null}
+
+        <section className="hg-learn-grid-section" aria-labelledby="hg-learn-grid-title">
+          <h2 id="hg-learn-grid-title" className="hg-learn-grid-heading">
+            {loading ? 'Danh sách (đang tải…)' : `Danh sách (${projects.length})`}
+          </h2>
+          <div className="hg-learn-grid">
+            {loading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="hg-learn-card-wrap">
+                    <div className="hg-learn-card" style={{ pointerEvents: 'none' }}>
+                      <span className="hg-learn-card-name">
+                        <Skeleton width="60%" height={24} />
+                      </span>
+                      <span className="hg-learn-card-meta" style={{ display: 'block', marginTop: '12px' }}>
+                        <Skeleton width="40%" height={16} />
+                      </span>
+                      <div className="hg-learn-deck-bar" style={{ marginTop: '12px', background: 'transparent' }}>
+                        <Skeleton width="100%" height={8} />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '12px' }}>
+                      <Skeleton width={110} height={32} borderRadius={6} />
+                      <Skeleton width={60} height={32} borderRadius={6} />
+                    </div>
+                  </div>
+                ))
+              : projects.map((p) => (
+                  <AnimatedCard key={p.id} className="hg-learn-card-wrap">
+                    <Link to={`/learn/${p.id}`} className="hg-learn-card">
+                      <span className="hg-learn-card-name">{p.name}</span>
+                      {p.description ? <span className="hg-learn-card-desc">{p.description}</span> : null}
+                      <span className="hg-learn-card-meta">
+                        {p.cardCount} thẻ
+                        {p.cardCount > 0 ? (
+                          <>
+                            {' · '}
+                            <span className="hg-learn-card-mastery">
+                              Lộ trình quiz: {p.progressPercent ?? 0}%
+                              {typeof p.masteredCardCount === 'number'
+                                ? ` · ${p.masteredCardCount}/${p.cardCount} đã nắm chắc`
+                                : null}
+                            </span>
+                          </>
+                        ) : null}
+                      </span>
+                      {p.cardCount > 0 ? (
+                        <div className="hg-learn-deck-bar" aria-hidden>
+                          <div
+                            className="hg-learn-deck-bar-fill"
+                            style={{ width: `${Math.min(100, Math.max(0, p.progressPercent ?? 0))}%` }}
+                          />
+                        </div>
+                      ) : null}
+                    </Link>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <Link to={`/learn/${p.id}/quiz`} className="hg-learn-quiz-cta">
+                        Kiểm tra (quiz)
+                      </Link>
+                      <button
+                        type="button"
+                        aria-label={`Xoá ${p.name}`}
+                        onClick={() => setConfirmDelete({ id: p.id, name: p.name })}
+                        style={{
+                          background: 'none', border: '1px solid #fca5a5', borderRadius: '6px',
+                          cursor: 'pointer', color: '#e53935', padding: '4px 8px',
+                          fontSize: '12px', fontWeight: 500, lineHeight: 1.4,
+                          display: 'flex', alignItems: 'center', gap: '4px',
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>delete</span>
+                        Xoá
+                      </button>
+                    </div>
+                  </AnimatedCard>
+                ))}
+          </div>
+        </section>
+      </div>
+    </AnimatedPage>
   )
 }
+

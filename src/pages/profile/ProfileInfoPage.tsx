@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { authService } from '../../api/services/authService'
 import { useAuthStore } from '../../store/authStore'
+import { AnimatedPage } from '../../components/animated/AnimatedPage'
 import './profile.css'
 
 const JLPT_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const
@@ -75,7 +76,7 @@ export function ProfileInfoPage() {
   }
 
   return (
-    <>
+    <AnimatedPage variant="fadeOnly">
       <div className="profile-card">
         <h3>Ảnh đại diện</h3>
         <input
@@ -143,6 +144,6 @@ export function ProfileInfoPage() {
           <p className={`profile-msg ${msg.type === 'err' ? 'profile-msg--err' : 'profile-msg--ok'}`}>{msg.text}</p>
         )}
       </form>
-    </>
+    </AnimatedPage>
   )
 }
